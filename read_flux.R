@@ -2,6 +2,8 @@
 library(readr)
 library(ggplot2)
 
+
+#Tyler was here
 ## Set wd
 setwd("C:/Users/Richard/Documents/508")
 
