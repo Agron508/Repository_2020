@@ -45,3 +45,7 @@ axis(4, ylim=c(0,5000), col="chartreuse4",col.axis="chartreuse4")
 #Set gridlines on plot
 grid(nx = NULL, ny = NULL, col = "gray", lty = "dotted")
 
+#Andy's Plot ====================================================================
+tmax=data$Tmax
+plot(tmax,results$ET.Daily)
+
