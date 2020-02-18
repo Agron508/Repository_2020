@@ -25,3 +25,8 @@ plot(results$ET.Daily)
 
 ##Your Turn:
 ##Now please make some changes to the graph. You can use the previous R script in the Announcement in Canvas.
+
+#Josh's Plot
+totalET = cumsum(results$ET.Monthly)
+plot(results$ET.Monthly, col = "aquamarine4", main = "Monthly ET", xlab = "Year", ylab = "ET (mm)", lwd = "4")
+grid(nx = NULL, ny = NULL, col = "gray", lty = "dotted")
