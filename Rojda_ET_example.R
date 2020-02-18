@@ -25,3 +25,8 @@ plot(results$ET.Daily)
 
 ##Your Turn:
 ##Now please make some changes to the graph. You can use the previous R script in the Announcement in Canvas.
+
+#Plot by Richard
+plot(data$Date.daily,results$ET.Daily, main="Penman-Monteith Formulation for Kent Town, Adelaide",
+     xlab="Year", ylab="Evapotransporation (mm)")
+grid()
