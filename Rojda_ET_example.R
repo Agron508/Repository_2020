@@ -47,5 +47,10 @@ grid(nx = NULL, ny = NULL, col = "gray", lty = "dotted")
 
 #Andy's Plot ====================================================================
 tmax=data$Tmax
-plot(tmax,results$ET.Daily)
+tdew=data$Tdew
+tmin=data$Tmin
+plot(tmax,results$ET.Daily, xlab="Maximum Temperature (C)",ylab = "Daily ET (mm)", lwd = "3")
+plot(tmin,results$ET.Daily, xlab="Minmum Temperature (C)",ylab = "Daily ET (mm)", lwd = "3")
+plot(tdew,results$ET.Daily, xlab="Dew Point Temperature (C)",ylab = "Daily ET (mm)", lwd = "3")
 
+plot(tmin,tdew, xlab="Dew Point Temperature (C)",ylab = "Minmum Temperature (C)", lwd = "3")
