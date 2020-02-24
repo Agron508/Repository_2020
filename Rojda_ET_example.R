@@ -26,7 +26,38 @@ plot(results$ET.Daily)
 ##Your Turn:
 ##Now please make some changes to the graph. You can use the previous R script in the Announcement in Canvas.
 
+#<<<<<<< HEAD
 #Plot by Richard
 plot(data$Date.daily,results$ET.Daily, main="Penman-Monteith Formulation for Kent Town, Adelaide",
      xlab="Year", ylab="Evapotransporation (mm)")
 grid()
+#=======
+#Josh's Plot ====================================================================
+totalET = cumsum(results$ET.Monthly) #Cumulative ET
+par(mar=c(4, 4, 4, 4)) #Set the margine size around the plot
+
+#Plot Monthly ET, format axis
+plot(results$ET.Monthly, ylim = c(0,250), col = "deepskyblue", main = "Evapotranspiration", xlab = "Year", ylab = "Monthly ET (mm)", lwd = "3")
+axis(2, ylim=c(0,5000), col="deepskyblue",col.axis="deepskyblue")
+
+#Allow for a second line on the plot
+par(new=TRUE)
+
+#Plot Cumulative ET, format axis
+plot(totalET, ylim = c(0,5000), col = "chartreuse4", axes = FALSE, xlab="", ylab = "", lwd = "3")
+mtext("Cumulative ET (mm)",side=4,col="black", line=3)
+axis(4, ylim=c(0,5000), col="chartreuse4",col.axis="chartreuse4")
+
+#Set gridlines on plot
+grid(nx = NULL, ny = NULL, col = "gray", lty = "dotted")
+
+#Andy's Plot ====================================================================
+tmax=data$Tmax
+tdew=data$Tdew
+tmin=data$Tmin
+plot(tmax,results$ET.Daily, xlab="Maximum Temperature (C)",ylab = "Daily ET (mm)", lwd = "3")
+plot(tmin,results$ET.Daily, xlab="Minmum Temperature (C)",ylab = "Daily ET (mm)", lwd = "3")
+plot(tdew,results$ET.Daily, xlab="Dew Point Temperature (C)",ylab = "Daily ET (mm)", lwd = "3")
+
+plot(tmin,tdew, xlab="Dew Point Temperature (C)",ylab = "Minmum Temperature (C)", lwd = "3")
+#>>>>>>> 9695e4589760aa2d112f38a3b80bb6b564eed242
