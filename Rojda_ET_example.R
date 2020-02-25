@@ -60,4 +60,13 @@ plot(tmin,results$ET.Daily, xlab="Minmum Temperature (C)",ylab = "Daily ET (mm)"
 plot(tdew,results$ET.Daily, xlab="Dew Point Temperature (C)",ylab = "Daily ET (mm)", lwd = "3")
 
 plot(tmin,tdew, xlab="Dew Point Temperature (C)",ylab = "Minmum Temperature (C)", lwd = "3")
-#>>>>>>> 9695e4589760aa2d112f38a3b80bb6b564eed242
+#>>>>>>>Tyler's plot
+
+tmax=data$Tmax
+tdew=data$Tdew
+tmin=data$Tmin
+plot(tmax,tmin)
+###This is where we got stuck.  Need to create a monthly variable to average by.
+maxday<-aggregate(cbind(data$Tmax)~data$Date.monthly,data,max)
+plot(data$Date.monthly)
+plot(tmax,results$ET.Monthly, xlab="Maximum Temperature (C)",ylab = "Monthly ET (mm)", lwd = "3")
