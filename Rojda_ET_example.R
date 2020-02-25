@@ -1,7 +1,7 @@
 ##17 February 2020
 ##Rojda
 ##"Evapotranspiration" package usage exercise
-###Rojda has just changed something 222222222222222222
+
 
 ##First install the "Evapotranspiration" package
 
