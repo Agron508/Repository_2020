@@ -72,7 +72,7 @@ plot(data$Date.monthly)
 plot(tmax,results$ET.Monthly, xlab="Maximum Temperature (C)",ylab = "Monthly ET (mm)", lwd = "3")
 
 
-###Rojda`s response for Andy`s Plot===============================================================
+###Rojda`s response for Tyler`s Plot===============================================================
 
 monthTmax<-data.frame(data$Tmax)
 monthTmax$Date<-data$Date.daily
