@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1582741672093.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1494960949",
+    "id" : "D82455BD",
+    "lastKnownWriteTime" : 1582741755,
+    "last_content_update" : 1582741755328,
+    "path" : "~/GitHub/Repository_2020/Rojda_ET_example.R",
+    "project_path" : "Rojda_ET_example.R",
+    "properties" : {
+        "cursorPosition" : "97,0",
+        "scrollLine" : "75"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
