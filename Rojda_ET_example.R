@@ -70,3 +70,21 @@ plot(tmax,tmin)
 maxday<-aggregate(cbind(data$Tmax)~data$Date.monthly,data,max)
 plot(data$Date.monthly)
 plot(tmax,results$ET.Monthly, xlab="Maximum Temperature (C)",ylab = "Monthly ET (mm)", lwd = "3")
+
+
+###Rojda`s response for Andy`s Plot===============================================================
+
+monthTmax<-data.frame(data$Tmax)
+monthTmax$Date<-data$Date.daily
+colnames(monthTmax)<-c("Tmax","DateTime")
+class(monthTmax$DateTime)
+[1] "Date"
+
+monthTmax$Month<-as.Date(cut(monthTmax$DateTime,breaks = "month"))
+maxday<-aggregate(cbind(monthTmax$Tmax)~monthTmax$Month,monthTmax,max)
+
+colnames(maxday)<-c("Month","Tmax")
+
+plot(maxday$Tmax,results$ET.Monthly, xlab="Maximum Temperature (C)",ylab = "Monthly ET (mm)", lwd = "3", col="red") #this plot shows monthly cumulative ET versus maximum temperature @ Month
+
+
