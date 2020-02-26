@@ -12,28 +12,28 @@ library(tidyverse)
 
 
 #--read in the data
-## I stopped here
 
+dat <- read_csv("data/tidy/data_ET-for-shiny.csv")
 
-# Define UI for application that draws a histogram
+#--create the drop down menu values
+dd_year <- dat %>% select(year_id) %>% pull() %>% unique() 
+
 ui <- fluidPage(
-
+    
     # Application title
-    titlePanel("Old Faithful Geyser Data"),
-
+    titlePanel("Tyler's ET Data"),
+    
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
         sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
+            selectInput("myyear",
+                        "Year:",
+                        choices = dd_year)
         ),
-
+        
         # Show a plot of the generated distribution
         mainPanel(
-           plotOutput("distPlot")
+            plotOutput("etPlot")
         )
     )
 )
@@ -41,13 +41,24 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
 
-    output$distPlot <- renderPlot({
+    ##--build reactive dataset, changes year highlight
+    liq_dat <- reactive({
+        dat %>% 
+            mutate(color_id = ifelse(year_id == input$myyear, "selected year", "no"))
+    })
+    
+    output$etPlot <- renderPlot({
         # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white')
+        ggplot(data = liq_dat(),
+               aes(x = Tmax,
+                   y = ET_monthly)) + 
+            geom_point(aes(color = color_id), size = 5) +
+            scale_color_manual(values = c("selected year" = "red",
+                                          "no" = "gray80")) +
+            #labs(x = "Maximum Monthly Temp (degC)",
+            #     y = "Montly Total Evapotranspiration (ET; mm)",
+            #     color = NULL)
+            theme_bw()
     })
 }
 
