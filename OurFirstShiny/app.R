@@ -13,7 +13,7 @@ library(tidyverse)
 
 #--read in the data
 
-dat <- read_csv("data/tidy/data_ET-for-shiny.csv")
+dat<- read.csv("C:/Users/myAdmins/Desktop/data_ET-for-shiny.csv")
 
 #--create the drop down menu values
 dd_year <- dat %>% select(year_id) %>% pull() %>% unique() 
@@ -45,12 +45,13 @@ server <- function(input, output) {
     liq_dat <- reactive({
         dat %>% 
             mutate(color_id = ifelse(year_id == input$myyear, "selected year", "no"))
+      #mutate(color_id = ifelse(month_id == input$myyear, "selected year", "no"))
     })
     
     output$etPlot <- renderPlot({
         # generate bins based on input$bins from ui.R
         ggplot(data = liq_dat(),
-               aes(x = Tmax,
+               aes(x =month_id,
                    y = ET_monthly)) + 
             geom_point(aes(color = color_id), size = 5) +
             scale_color_manual(values = c("selected year" = "red",

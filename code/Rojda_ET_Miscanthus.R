@@ -72,6 +72,18 @@ data$Date.daily<-ET$Date.daily
 
 ##please continue to changes the variables like this using our "ET" data sheet to create appropriate "data" list for the pakage use.
 
+# Rojda`s adding
+#how to plot the varibale versus DateTime
+
+library(lubridate)
+
+data$Date.daily<-mdy(data$Date.daily) ##change the class of the DAte.daily into "Date" format using lubridate package 
+
+
+plot(data$Date.daily,ET$Tmax)
+
+
+
 
 ##Thanks!
 

@@ -91,7 +91,8 @@ library(lubridate)
 maxday <- as_tibble(maxday) %>% 
   mutate(ET_monthly = as.vector(results$ET.Monthly),
          year_month = Month,
-         year_id = year(Month))
+         year_id = year(Month),
+         month_id=month(Month))
 
 maxday %>% write_csv("data_ET-for-shiny.csv")
 
