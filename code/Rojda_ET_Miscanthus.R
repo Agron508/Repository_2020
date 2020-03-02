@@ -82,7 +82,26 @@ data$Date.daily<-mdy(data$Date.daily) ##change the class of the DAte.daily into 
 
 plot(data$Date.daily,ET$Tmax)
 
+##lets try to plot the same figure in ggplot with different x axis breaks
 
+class(ET$Date.daily)
+[1] "factor"
+
+ET$Date.daily<-as.POSIXct(ET$Date.daily)
+class(ET$Date.daily)
+[1] "POSIXct" "POSIXt" 
+
+##I am doing each step naming different plots (p1 to p4) to see how we changed the plots with the codes.
+library(scales)
+
+p1<-ggplot(ET, aes(Date.daily,Tmax))+ geom_point()
+p1
+p2<-p1+scale_x_datetime(labels = date_format("%Y/%b"), breaks = date_breaks("4 months")) + theme(axis.text.x = element_text(angle = 45,size = 9,hjust = 0.8))
+p2
+p3<-p2+theme(panel.background = element_rect(fill = "white",color="black"))
+p3
+p4<-p3+theme(panel.grid.major = element_line(colour="grey",linetype="solid",size = 0.1))+xlab("")
+p4
 
 
 ##Thanks!
