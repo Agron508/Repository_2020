@@ -13,7 +13,7 @@ library(tidyverse)
 
 #--read in the data
 
-dat <- read.csv("data/tidy/data_ET-for-shiny.csv")
+dat <- read.csv("../data/tidy/data_ET-for-shiny.csv")
 
 #--create the drop down menu values
 dd_year <- dat %>% select(year_id) %>% pull() %>% unique()
