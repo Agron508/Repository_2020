@@ -6,8 +6,9 @@
 
 
 library(Evapotranspiration)
+library(zoo)
 
-#Import the DailyET_Miscanthus_2009-2011.csv file
+#Import the DailyET_Miscanthus_2009-2011.csv file from the class Box folder (AGRON 508-S20==RStudy)
 
 DailyET_Miscanthus_2009.2011 <- read.csv("C:/Users/myAdmins/Desktop/Andy Course/DailyET_Miscanthus_2009-2011.csv")
 
@@ -86,17 +87,18 @@ plot(data$Date.daily,ET$Tmax)
 
 class(ET$Date.daily)
 [1] "factor"
-
+ET$Date.daily<-mdy(ET$Date.daily)
 ET$Date.daily<-as.POSIXct(ET$Date.daily)
 class(ET$Date.daily)
 [1] "POSIXct" "POSIXt" 
 
 ##I am doing each step naming different plots (p1 to p4) to see how we changed the plots with the codes.
 library(scales)
+library(ggplot2)
 
 p1<-ggplot(ET, aes(Date.daily,Tmax))+ geom_point()
 p1
-p2<-p1+scale_x_datetime(labels = date_format("%Y/%b"), breaks = date_breaks("4 months")) + theme(axis.text.x = element_text(angle = 45,size = 9,hjust = 0.8))
+p2<-p1+scale_x_datetime(labels = date_format("%Y/%m"), breaks = date_breaks("5 months")) + theme(axis.text.x = element_text(angle = 45,size = 9,hjust = 0.8))
 p2
 p3<-p2+theme(panel.background = element_rect(fill = "white",color="black"))
 p3

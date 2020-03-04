@@ -9,14 +9,18 @@
 
 library(shiny)
 library(tidyverse)
+library(scales)
+
+
 
 
 #--read in the data
 
-dat<- read.csv("C:/Users/myAdmins/Desktop/data_ET-for-shiny.csv")
+dat<- read.csv("C:/Users/myAdmins/Desktop/Rshiny_flux/data_ET-for-shiny.csv")
+
 
 #--create the drop down menu values
-dd_year <- dat %>% select(year_id) %>% pull() %>% unique() 
+dd_month <- dat %>% select(month_id) %>% pull() %>% unique() 
 
 ui <- fluidPage(
     
@@ -26,9 +30,9 @@ ui <- fluidPage(
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
         sidebarPanel(
-            selectInput("myyear",
-                        "Year:",
-                        choices = dd_year)
+            selectInput("mymonth",
+                        "Month:",
+                        choices = dd_month)
         ),
         
         # Show a plot of the generated distribution
@@ -44,7 +48,7 @@ server <- function(input, output) {
     ##--build reactive dataset, changes year highlight
     liq_dat <- reactive({
         dat %>% 
-            mutate(color_id = ifelse(year_id == input$myyear, "selected year", "no"))
+            mutate(color_id = ifelse(month_id == input$mymonth, "selected month", "no"))
       #mutate(color_id = ifelse(month_id == input$myyear, "selected year", "no"))
     })
     

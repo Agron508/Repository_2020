@@ -11,6 +11,7 @@
 DailyET_SABR_miscanthus <- read.csv("C:/Users/myAdmins/Box/AGRON 508-S20/R Study/DailyET_SABR_miscanthus.csv")
 DailyET1<-DailyET_SABR_miscanthus
 
+
 library(Evapotranspiration)
 #download example data
 data("processeddata")
