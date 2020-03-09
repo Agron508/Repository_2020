@@ -3,8 +3,7 @@
 
 ##appliying "Evapotranspiratio" package for the SABR miscanthus site
 
-#I prepared the available format data set for the package and uploaded in the Box under Agron 508-S20 folder named as "DailyET_SABR_miscanthus"
-#please first import "DailyET_SABR_miscanthus" csv file.
+
 
 
 
@@ -86,7 +85,12 @@ plot.zoo( cbind(results1$ET.Daily, DailyET1$ET_EC),
           plot.type = "single", 
           col = c("red", "blue"))
 
-#you can try to plot the figure using ggplot as we used before
+#you can try to plot the same figure using ggplot as we used before
+
+
+
+###here is the data preparation for shiny app. 
+
 
 library(lubridate)
 class(DailyET1$Date)
