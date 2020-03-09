@@ -11,6 +11,7 @@
 DailyET_SABR_miscanthus <- read.csv("~/GitHub/Repository_2020/data/raw/DailyET_SABR_miscanthus.csv")
 DailyET1<-DailyET_SABR_miscanthus
 
+
 library(Evapotranspiration)
 #download example data
 data("processeddata")
