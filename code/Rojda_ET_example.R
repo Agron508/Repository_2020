@@ -94,7 +94,7 @@ maxday <- as_tibble(maxday) %>%
          year_id = year(Month),
          month_id=month(Month))
 
-maxday %>% write_csv("data_ET-for-shiny.csv")
+maxday %>% write_csv("data/tidy/ET_miscanthus_example")
 
 maxday %>% 
   ggplot(aes(Tmax, ET_monthly)) + 

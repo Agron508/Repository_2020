@@ -8,7 +8,7 @@
 
 
 
-DailyET_SABR_miscanthus <- read.csv("C:/Users/myAdmins/Box/AGRON 508-S20/R Study/DailyET_SABR_miscanthus.csv")
+DailyET_SABR_miscanthus <- read.csv("~/GitHub/Repository_2020/data/raw/DailyET_SABR_miscanthus.csv")
 DailyET1<-DailyET_SABR_miscanthus
 
 library(Evapotranspiration)
@@ -72,7 +72,7 @@ data$RHmin<-zoo(data$RHmin)
 data$uz<-zoo(data$uz)
 data$n<-zoo(data$n)
 
-results1 <- ET.PenmanMonteith(data, constants, ts="daily", solar="sunshine hours", 
+results <- ET.PenmanMonteith(data, constants, ts="daily", solar="sunshine hours", 
                               wind="yes", crop = "short", message="yes", AdditionalStats="yes", save.csv="yes")
 
 
@@ -87,4 +87,17 @@ plot.zoo( cbind(results1$ET.Daily, DailyET1$ET_EC),
 
 #you can try to plot the figure using ggplot as we used before
 
+library(lubridate)
+class(DailyET1$Date)
+DailyET1$Date<-ymd(DailyET1$Date)
+DailyET1$Month<-as.Date(cut(DailyET1$Date,breaks = "month"))
+
+ET_Miscanthus_SABR<- as_tibble(results$ET.Daily) %>% 
+  mutate(ET_daily = as.vector(results$ET.Daily),
+         DOY=yday(DailyET1$Date),
+         Month= DailyET1$Month,
+         year_id = year(DailyET1$Month),
+         month_id=month(DailyET1$Month))
+
+ET_Miscanthus_SABR %>% write_csv("data/tidy/ET_miscanthus_SABR.csv")
 
