@@ -25,8 +25,12 @@ library(lubridate)
 #ET_monthly=aggregate(dat$ET_daily, by=list(dat$month),mean, na.rm=TRUE)
 
 # use R projects to provide base directory, make sure you have the project open 
-dat <- read_csv("data/tidy/ET_miscanthus_SABR.csv") %>% 
+# dat <- read_csv("data/tidy/ET_miscanthus_SABR.csv") %>% 
+#   mutate(month_id = month(Month, label = T))
+
+dat <- read_csv("../data/tidy/ET_miscanthus_SABR.csv") %>% 
   mutate(month_id = month(Month, label = T))
+
 
 # get the mean ET for each month (?)
 datmonth <- 
