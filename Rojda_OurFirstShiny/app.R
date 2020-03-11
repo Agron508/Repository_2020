@@ -70,7 +70,8 @@ ui2 <- fluidPage(
     
     # Show a plot of the generated distribution
     mainPanel(
-      plotOutput("etPlot")
+      plotOutput("etPlot"),
+      plotOutput("et2")
     )
   )
 )
@@ -79,7 +80,7 @@ ui2 <- fluidPage(
 server <- function(input, output) {
 
 
-    # ##--build reactive dataset, changes year highlight
+    # #--build reactive dataset, changes year highlight
     # liq_dat <- reactive({
     #     dat %>%
     #         #mutate(color_id = ifelse(month_id == input$mymonth, "selected month", "no"))
@@ -101,7 +102,7 @@ server <- function(input, output) {
     # })
 
   
-  ##--build reactive dataset, changes year and month highlight
+  #--build reactive dataset, changes year and month highlight
   liq_dat <- reactive({
       dat %>%
     mutate(color_id = ifelse(month_id == input$mymonth, "selected month", "no"))
@@ -120,36 +121,36 @@ server <- function(input, output) {
 
           theme_bw()
   })
-  
-  
-  
-    
-    # ##--build reactive dataset, changes year highlight
-    # liq_dat <- reactive({
-    #  dat %>% 
-    #     mutate(color_id = ifelse(month_id == input$myyear, "selected month", "no"))
-    # })
-    # 
-    # 
-    # output$etPlot <- renderPlot({
-    #   # generate bins based on input$bins from ui.R
-    #   ggplot(data = ET_monthly,
-    #          aes(x =Group.1,
-    #              y = x)) + 
-    #     #facet_wrap( ~ month,ncol=3)+
-    #     #geom_jitter(aes(color = ""), size = 3) +
-    #     geom_point(color="red", size=3)+
-    #     scale_color_manual(values = c("selected month" = "red",
-    #                                   "no" = "gray80")) +
-    #   ylab("Evapotranspiration (mm/day)")+xlab("")+
-    #     
-    #     theme_bw()
-    # })
+
+
+
+
+    ##--build reactive dataset, changes year highlight
+  liq_dat <- reactive({
+   dat %>%
+      mutate(color_id = ifelse(month_id == input$myyear, "selected month", "no"))
+  })
+
+
+  output$et2 <- renderPlot({
+    # generate bins based on input$bins from ui.R
+    ggplot(data = ET_monthly,
+           aes(x =Group.1,
+               y = x)) +
+      #facet_wrap( ~ month,ncol=3)+
+      #geom_jitter(aes(color = ""), size = 3) +
+      geom_point(color="red", size=3)+
+      scale_color_manual(values = c("selected month" = "red",
+                                    "no" = "gray80")) +
+    ylab("Evapotranspiration (mm/day)")+xlab("")+
+
+      theme_bw()
+  })
     
     
 
 
-    # ##--build reactive dataset, changes year highlight
+    #--build reactive dataset, changes year highlight
     # liq_dat <- reactive({
     #   dat %>%
     #     mutate(color_id = ifelse(year_id == input$myyear, "selected year", "no"))
