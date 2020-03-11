@@ -68,80 +68,29 @@ ui <- fluidPage(
                ),
                
                mainPanel(plotOutput("etPlot2")))
-    ) #--end Tyler panel
+    ), #--end Tyler panel
     
-<<<<<<< HEAD
     # Show a plot of the generated distribution
     mainPanel(
       plotOutput("etPlot"),
       plotOutput("et2")
     )
-=======
->>>>>>> 6ab5c78af3d1ea08af98619c0b188c62308c5dea
   )
 )
-
-
-<<<<<<< HEAD
-    # #--build reactive dataset, changes year highlight
-    # liq_dat <- reactive({
-    #     dat %>%
-    #         #mutate(color_id = ifelse(month_id == input$mymonth, "selected month", "no"))
-    #   mutate(color_id = ifelse(month_id == input$myyear, "selected month", "no"))
-    # })
-    # 
-    # 
-    # output$etPlot <- renderPlot({
-    #     # generate bins based on input$bins from ui.R
-    #     ggplot(data = liq_dat(),
-    #            aes(x =DOY,
-    #                y = ET_daily)) +
-    #   facet_wrap( ~ month,ncol=3)+
-    #         geom_jitter(aes(color = color_id), size = 3) +
-    #         scale_color_manual(values = c("selected month" = "red",
-    #                                       "no" = "gray80")) +
-    # 
-    #         theme_bw()
-    # })
-=======
->>>>>>> 6ab5c78af3d1ea08af98619c0b188c62308c5dea
-
-# ui2 <- fluidPage(
-#   
-#   # Application title
-#   titlePanel("ET SABR Miscanthus"),
-#   
-#   # Sidebar with a slider input for number of bins 
-#   sidebarLayout(
-#     sidebarPanel(
-#       selectInput("myyear","Year", choices = dd_year),
-#       selectInput("mymonth","Month",choices = dd_month)
-#       
-#     ),
-#     
-#     # Show a plot of the generated distribution
-#     mainPanel(
-#       plotOutput("etPlot")
-#     )
-#   )
-# )
 
 
 # Define server logic required
 server <- function(input, output) {
   
-<<<<<<< HEAD
   #--build reactive dataset, changes year and month highlight
   liq_dat <- reactive({
       dat %>%
-    mutate(color_id = ifelse(month_id == input$mymonth, "selected month", "no"))
-=======
+    mutate(color_id = ifelse(month_id == input$mymonth, "selected month", "no"))})
+  
   # this is for Rojda's tab--------------------------
   liq_dat1 <- reactive({
     dat %>%
-      mutate(color_id = ifelse(month_id == input$month1, "selected", "no"))
->>>>>>> 6ab5c78af3d1ea08af98619c0b188c62308c5dea
-  })
+      mutate(color_id = ifelse(month_id == input$month1, "selected", "no"))})
   
   output$etPlot1 <- renderPlot({
     # generate bins based on input$bins from ui.R
@@ -173,7 +122,6 @@ server <- function(input, output) {
       
       theme_bw()
   })
-<<<<<<< HEAD
 
 
 
@@ -200,34 +148,7 @@ server <- function(input, output) {
       theme_bw()
   })
     
-    
-
-
-    #--build reactive dataset, changes year highlight
-    # liq_dat <- reactive({
-    #   dat %>%
-    #     mutate(color_id = ifelse(year_id == input$myyear, "selected year", "no"))
-    # })
-    # 
-    # output$etPlot <- renderPlot({
-    #   # generate bins based on input$bins from ui.R
-    #   ggplot(data = liq_dat(),
-    #          aes(x = DOY,
-    #              y = ET_daily)) +
-    #     geom_point(aes(color = color_id), size = 5) +
-    #     scale_color_manual(values = c("selected year" = "red",
-    #                                   "no" = "gray80")) +
-    #     #labs(x = "Maximum Monthly Temp (degC)",
-    #     #     y = "Montly Total Evapotranspiration (ET; mm)",
-    #     #     color = NULL)
-    #     theme_bw()
-    # })
-
-=======
   
-  
-  
->>>>>>> 6ab5c78af3d1ea08af98619c0b188c62308c5dea
 }
 
 # Run the application 
