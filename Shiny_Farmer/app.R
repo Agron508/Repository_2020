@@ -26,6 +26,10 @@ library(lubridate)
 # dat <- read_csv("data/tidy/ET_miscanthus_SABR.csv") %>% 
 #   mutate(month_id = month(Month, label = T))
 
+# dat <- read_csv("data/tidy/ET_miscanthus_SABR.csv") %>% 
+#   mutate(month_id = month(Month, label = T))
+
+
 dat <- read_csv("../data/tidy/ET_miscanthus_SABR.csv") %>% 
   mutate(month_id = month(Month, label = T))
 
@@ -39,121 +43,147 @@ datmonth <-
 #--create the drop down menu values
 dd_year <- dat %>% select(year_id) %>% pull() %>% unique()
 dd_month <- dat %>% select(month_id) %>% pull() %>% unique()
+dd_paw <- seq(1, 15, 1)
 
 ui <- fluidPage(
   # Application title
-  navbarPage("ET SABR Miscanthus"),
+  navbarPage("Fun Class Projects"),
   
   tabsetPanel(
-    
-    tabPanel("Rojda tab", #--start Rojda panel
-             mainPanel(
-               sidebarPanel(
-                 selectInput(inputId = "month1", 
-                             label = "Month:",
-                             selected = "Jun",
-                             choices = dd_month)
+    tabPanel("Tyler and Josh",
+             
+             fluidRow(
+               column(6,
+                      plotOutput("tjPlot1")),
+               column(6,
+                      plotOutput("tjPlot2")),
+               
+               hr(),
+               
+               fluidRow(
+                 
+                 column(
+                   3,
+                   selectInput(
+                     inputId = "tjyear",
+                     label = "Pick A Year:",
+                     selected = 2019,
+                     choices = dd_year
+                   )
+                 ),
+                 column(
+                 3,
+                 selectInput(
+                   inputId = "tjmonth",
+                   label = "Pick A Month:",
+                   selected = "Jul",
+                   choices = dd_month
+                 )
                ),
                
-               mainPanel(plotOutput("etPlot1")))
-    ), #--end Rojda panel
-    
-    
-    tabPanel("Tyler tab", #--start Tyler tab
-             mainPanel(
-               # Sidebar with a slider input for number of bins
-               sidebarPanel(
-                 sliderInput("slider1", label = h3("Slider"), min = 0, 
-                             max = 1, value = 0.5)
+               column(
+                 3,
+                 selectInput(
+                   inputId = "tjpaw",
+                   label = "Pick A Starting PAW:",
+                   selected = 15,
+                   choices = dd_paw
+                 )
                ),
+               column(
+                 3,
+                 sliderInput(
+                   "tjslider",
+                   label = h3("Pick a Crop Coefficient"),
+                   min = 0,
+                   max = 1,
+                   value = 0.5,
+                   step = 0.1
+                 )
+               )
+               )
                
-                 selectInput(inputId = "month2", 
-                             label = "Tyler's Favorite Month:",
-                             selected = "Jul",
-                             choices = dd_month)
-               ),
-               
-               mainPanel(plotOutput("etPlot2")))
-    ), #--end Tyler panel
-    
-    # Show a plot of the generated distribution
-    mainPanel(
-      plotOutput("etPlot"),
-      plotOutput("et2")
+               # tabPanel("Tyler tab", #--start Tyler tab
+               #          mainPanel(
+               #            # Sidebar with a slider input for number of bins
+               #            sidebarPanel(
+               #              sliderInput("slider1", label = h3("Pick a Crop Coefficient"),
+               #                          min = 0,
+               #                          max = 1,
+               #                          value = 0.5,
+               #                          step = 0.1)
+               #            ),
+               #
+               #              selectInput(inputId = "month2",
+               #                          label = "Tyler's Favorite Month:",
+               #                          selected = "Jul",
+               #                          choices = dd_month)
+               #            ),
+               #
+               #            mainPanel(plotOutput("etPlot2")))
+               # ) #--end Tyler tab
+               #
+             )
     )
   )
+)
+             
 
 
 
 # Define server logic required
 server <- function(input, output) {
   
-  #--build reactive dataset, changes year and month highlight
-  liq_dat <- reactive({
-      dat %>%
-    mutate(color_id = ifelse(month_id == input$mymonth, "selected month", "no"))})
-  
-  # this is for Rojda's tab--------------------------
-  liq_dat1 <- reactive({
+  # This is for Tyler/Josh tab-------------------
+  liq_tj1 <- reactive({
     dat %>%
-      mutate(color_id = ifelse(month_id == input$month1, "selected", "no"))})
-  
-  output$etPlot1 <- renderPlot({
-    # generate bins based on input$bins from ui.R
-    ggplot(data = liq_dat1(),
-           aes(x =DOY,
-               y = ET_daily)) +
-      geom_jitter(aes(color = color_id), size = 3) +
-      scale_color_manual(values = c("selected" = "red",
-                                    "no" = "gray80")) +
-      
-      theme_bw()
+      filter(month_id == input$tjmonth) %>% 
+      #mutate(color_id = ifelse(month_id == input$tjmonth, "selected", "no")) %>% 
+      filter(year_id == input$tjyear)
+    
   })
   
-  # This is for Tyler's tab-------------------
-  liq_dat2 <- reactive({
+  
+  output$tjPlot1 <- renderPlot({
+  
+      ggplot(data = liq_tj1(),
+           aes(x =DOY,
+               y = ET_daily*input$tjslider)) +
+      geom_jitter(aes(x=DOY,
+                      y=ET_daily), 
+                  color="black",
+                  size = 3) +
+      geom_jitter(aes(color = color_id), 
+                  color = "red", 
+                  size = 3) +
+      theme_bw()
+  })
+
+  
+  liq_tj2 <- reactive({
     dat %>%
-      mutate(color_id = ifelse(month_id == input$month2, "selected", "no"))
+      filter(month_id == input$tjmonth) %>% 
+      filter(year_id == input$tjyear) %>% 
+      mutate(startpaw = as.numeric(input$tjpaw),
+             paw = startpaw - ET_daily*input$tjslider)
+    
   })
   
-  
-  output$etPlot2 <- renderPlot({
-    # generate bins based on input$bins from ui.R
-    ggplot(data = liq_dat2(),
+   output$tjPlot2 <- renderPlot({
+    
+    ggplot(data = liq_tj2(),
            aes(x =DOY,
-               y = ET_daily*input$slider1)) +
-      geom_jitter(aes(color = color_id), size = 3) +
-      geom_jitter(aes(x=DOY,y=ET_daily), color="black", size = 3) +
-      scale_color_manual(values = c("selected" = "red",
-                                    "no" = "gray80")) +
-      
+               y = paw)) +
+      geom_point(color = "gray", size = 3) +
+       geom_line(color = "gray", size = 2) +
       theme_bw()
+     
+     
   })
+  
 
 
 
-
-    ##--build reactive dataset, changes year highlight
-  liq_dat <- reactive({
-   dat %>%
-      mutate(color_id = ifelse(month_id == input$myyear, "selected month", "no"))
-  })
-
-
-  output$et2 <- renderPlot({
-    # generate bins based on input$bins from ui.R
-    ggplot(data = ET_monthly,
-           aes(x =Group.1,
-               y = x)) +
-      #facet_wrap( ~ month,ncol=3)+
-      #geom_jitter(aes(color = ""), size = 3) +
-      geom_point(color="red", size=3)+
-      scale_color_manual(values = c("selected month" = "red",
-                                    "no" = "gray80")) +
-    ylab("Evapotranspiration (mm/day)")+xlab("")+
-
-      theme_bw()
-  })
     
   
 }
