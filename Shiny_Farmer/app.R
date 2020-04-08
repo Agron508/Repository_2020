@@ -28,6 +28,7 @@ library(lubridate)
 
 # dat <- read_csv("data/tidy/ET_miscanthus_SABR.csv") %>% 
 #   mutate(month_id = month(Month, label = T))
+#
 
 
 et <- read_csv("../data/tidy/ET_miscanthus_SABR.csv") %>% 
