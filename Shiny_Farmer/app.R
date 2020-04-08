@@ -31,7 +31,7 @@ library(lubridate)
 
 
 dat <- read_csv("../data/tidy/ET_miscanthus_SABR.csv") %>% 
-  mutate(month_id = month(Month, label = T))
+  mutate(month_id = month(Month, label = T)) 
 
 
 # get the mean ET for each month (?)
@@ -85,7 +85,7 @@ ui <- fluidPage(
                  3,
                  selectInput(
                    inputId = "tjpaw",
-                   label = "Pick A Starting PAW:",
+                   label = "Pick A Starting PAW (mm):",
                    selected = 15,
                    choices = dd_paw
                  )
@@ -93,7 +93,7 @@ ui <- fluidPage(
                column(
                  3,
                  sliderInput(
-                   "tjslider",
+                   "tjcc",
                    label = h3("Pick a Crop Coefficient"),
                    min = 0,
                    max = 1,
@@ -137,9 +137,15 @@ server <- function(input, output) {
   # This is for Tyler/Josh tab-------------------
   liq_tj1 <- reactive({
     dat %>%
-      filter(month_id == input$tjmonth) %>% 
-      #mutate(color_id = ifelse(month_id == input$tjmonth, "selected", "no")) %>% 
-      filter(year_id == input$tjyear)
+      filter(month_id == input$tjmonth,
+             year_id == input$tjyear) %>% 
+      mutate(ET_daily_lag = lag(ET_daily),
+             ET_daily_lag = ifelse(is.na(ET_daily_lag), 0, ET_daily_lag),
+             paw = as.numeric(input$tjpaw),
+             cc = as.numeric(input$tjcc)) %>% 
+      mutate(cumET = cumsum(ET_daily_lag),
+             paw_today = paw - cc*cumET)
+    
     
   })
   
@@ -147,36 +153,32 @@ server <- function(input, output) {
   output$tjPlot1 <- renderPlot({
   
       ggplot(data = liq_tj1(),
-           aes(x =DOY,
-               y = ET_daily*input$tjslider)) +
-      geom_jitter(aes(x=DOY,
-                      y=ET_daily), 
-                  color="black",
+           aes(x = DOY,
+               y = ET_daily*cc)) +
+      geom_jitter(aes(x = DOY,
+                      y = ET_daily), 
+                  color = "black",
                   size = 3) +
       geom_jitter(aes(color = color_id), 
                   color = "red", 
                   size = 3) +
-      theme_bw()
+      theme_bw() + 
+      labs(x = NULL,
+           y = "Daily Evapotranspiration (mm)")
   })
 
   
-  liq_tj2 <- reactive({
-    dat %>%
-      filter(month_id == input$tjmonth) %>% 
-      filter(year_id == input$tjyear) %>% 
-      mutate(startpaw = as.numeric(input$tjpaw),
-             paw = startpaw - ET_daily*input$tjslider)
-    
-  })
-  
    output$tjPlot2 <- renderPlot({
     
-    ggplot(data = liq_tj2(),
-           aes(x =DOY,
-               y = paw)) +
+    ggplot(data = liq_tj1(),
+           aes(x = DOY,
+               y = paw_today)) +
+       geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
       geom_point(color = "gray", size = 3) +
        geom_line(color = "gray", size = 2) +
-      theme_bw()
+      theme_bw() + 
+       labs(x = NULL,
+            y = "Plant Available Water (mm)")
      
      
   })
