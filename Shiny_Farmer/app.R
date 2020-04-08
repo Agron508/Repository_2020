@@ -9,7 +9,7 @@
 
 library(shiny)
 library(tidyverse)
-
+library(janitor)
 library(scales)
 library(lubridate)
 
@@ -30,15 +30,18 @@ library(lubridate)
 #   mutate(month_id = month(Month, label = T))
 
 
-dat <- read_csv("../data/tidy/ET_miscanthus_SABR.csv") %>% 
+et <- read_csv("../data/tidy/ET_miscanthus_SABR.csv") %>% 
   mutate(month_id = month(Month, label = T)) 
-
-
-# get the mean ET for each month (?)
-datmonth <- 
-  dat %>%  
-  group_by(month_id) %>% 
-  summarise(mean_et = mean(ET_daily))
+wx <- read_csv("../data/tidy/ames_2019.csv") %>%
+  clean_names() %>%
+  rename(year_id=c_year,
+         DOY=doy)
+dat <-
+  et %>% left_join(wx,by=c("year_id","DOY")) %>%
+   select(year_id,month_id,DOY,ET_daily,precip_mm) %>%
+  group_by(year_id,month_id,DOY,ET_daily) %>%
+  summarise(precip_mm=sum(precip_mm))
+ 
 
 #--create the drop down menu values
 dd_year <- dat %>% select(year_id) %>% pull() %>% unique()
@@ -144,7 +147,7 @@ server <- function(input, output) {
              paw = as.numeric(input$tjpaw),
              cc = as.numeric(input$tjcc)) %>% 
       mutate(cumET = cumsum(ET_daily_lag),
-             paw_today = paw - cc*cumET)
+             paw_today = paw - cc*cumET + precip_mm)
     
     
   })
