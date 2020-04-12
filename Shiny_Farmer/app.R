@@ -13,123 +13,136 @@ library(janitor)
 library(scales)
 library(lubridate)
 
+#--read in the data for trouble-shooting
 
-#--read in the data
-
-
-#dat<- read.csv("C:/Users/myAdmins/Desktop/Rshiny_flux/data_ET-for-shiny.csv")
-#dat <- read.csv("~/GitHub/Repository_2020/data/tidy/ET_miscanthus_SABR.csv") %>% 
-#  mutate(month = month(Month, label = T))
-#ET_monthly=aggregate(dat$ET_daily, by=list(dat$month),mean, na.rm=TRUE)
-
-# use R projects to provide base directory, make sure you have the project open 
-# dat <- read_csv("data/tidy/ET_miscanthus_SABR.csv") %>% 
-#   mutate(month_id = month(Month, label = T))
-
-# dat <- read_csv("data/tidy/ET_miscanthus_SABR.csv") %>% 
-#   mutate(month_id = month(Month, label = T))
+# et <- 
+#   read_csv("data/tidy/data_et-sabr-miscan.csv") %>% 
+#   mutate(date = mdy(Month),
+#          month_id = month(date),
+#          doy = DOY) %>% 
+#   select(year_id, month_id, doy, ET_daily)
+#   
+# wx <- read_csv("data/tidy/data_ames-wea-2019.csv") %>% 
+#   mutate(year_id = year(date))
 
 
-et <- read_csv("../data/tidy/ET_miscanthus_SABR.csv") %>% 
-  mutate(month_id = month(Month, label = T)) 
-wx <- read_csv("../data/tidy/ames_2019.csv") %>%
-  clean_names() %>%
-  rename(year_id=c_year,
-         DOY=doy)
+
+et <- 
+  read_csv("../data/tidy/data_et-sabr-miscan.csv") %>% 
+  mutate(date = mdy(Month),
+         month_id = month(date),
+         doy = DOY) %>% 
+  select(year_id, month_id, doy, ET_daily)
+
+wx <- read_csv("../data/tidy/data_ames-wea-2019.csv") %>% 
+  mutate(year_id = year(date))
+
+
+
 dat <-
-  et %>% left_join(wx,by=c("year_id","DOY")) %>%
-   select(year_id,month_id,DOY,ET_daily,precip_mm) %>%
-  group_by(year_id,month_id,DOY,ET_daily) %>%
-  summarise(precip_mm=sum(precip_mm))
- 
+  et %>% 
+  left_join(wx) %>%  
+  mutate(month_lab = month(month_id, label = T))
+
+# for trouble shooting ----------------------------------------------------
+
+     
+dat.fake <- 
+  dat %>%
+  filter(month_lab == "Jun",
+         year_id == 2019) %>% 
+  mutate(cc = as.numeric(0.5)) %>% 
+  mutate(ET_coef = ET_daily * cc,
+         net_mm = -ET_coef + precip_mm,
+         cum_mm = cumsum(net_mm),
+         paw = as.numeric(15) + cum_mm)
+
+    
+dat.fake %>% 
+  ggplot(aes(date, paw)) + 
+  geom_point() + 
+  scale_x_date(date_labels = "%b %d")
 
 #--create the drop down menu values
 dd_year <- dat %>% select(year_id) %>% pull() %>% unique()
-dd_month <- dat %>% select(month_id) %>% pull() %>% unique()
+dd_month <- dat %>% select(month_lab) %>% pull() %>% unique()
 dd_paw <- seq(1, 15, 1)
 
 ui <- fluidPage(
   # Application title
   navbarPage("Fun Class Projects"),
   
-  tabsetPanel(
-    tabPanel("Tyler and Josh",
-             
-             fluidRow(
-               column(6,
-                      plotOutput("tjPlot1")),
-               column(6,
-                      plotOutput("tjPlot2")),
-               
-               hr(),
-               
-               fluidRow(
-                 
-                 column(
-                   3,
-                   selectInput(
-                     inputId = "tjyear",
-                     label = "Pick A Year:",
-                     selected = 2019,
-                     choices = dd_year
-                   )
-                 ),
-                 column(
-                 3,
-                 selectInput(
-                   inputId = "tjmonth",
-                   label = "Pick A Month:",
-                   selected = "Jul",
-                   choices = dd_month
-                 )
-               ),
-               
-               column(
-                 3,
-                 selectInput(
-                   inputId = "tjpaw",
-                   label = "Pick A Starting PAW (mm):",
-                   selected = 15,
-                   choices = dd_paw
-                 )
-               ),
-               column(
-                 3,
-                 sliderInput(
-                   "tjcc",
-                   label = h3("Pick a Crop Coefficient"),
-                   min = 0,
-                   max = 1,
-                   value = 0.5,
-                   step = 0.1
-                 )
-               )
-               )
-               
-               # tabPanel("Tyler tab", #--start Tyler tab
-               #          mainPanel(
-               #            # Sidebar with a slider input for number of bins
-               #            sidebarPanel(
-               #              sliderInput("slider1", label = h3("Pick a Crop Coefficient"),
-               #                          min = 0,
-               #                          max = 1,
-               #                          value = 0.5,
-               #                          step = 0.1)
-               #            ),
-               #
-               #              selectInput(inputId = "month2",
-               #                          label = "Tyler's Favorite Month:",
-               #                          selected = "Jul",
-               #                          choices = dd_month)
-               #            ),
-               #
-               #            mainPanel(plotOutput("etPlot2")))
-               # ) #--end Tyler tab
-               #
-             )
+  tabsetPanel(tabPanel(
+    "Tyler and Josh",
+    
+    fluidRow(
+      column(6,
+             plotOutput("tjPlot1")),
+      column(6,
+             plotOutput("tjPlot2")),
+      
+      hr(),
+      
+      fluidRow(
+        column(
+          2,
+          selectInput(
+            inputId = "tjyear",
+            label = h4("Pick A Year:"),
+            selected = 2019,
+            choices = dd_year
+          )
+        ),
+        column(
+          2,
+          selectInput(
+            inputId = "tjmonth",
+            label = h4("Pick A Month:"),
+            selected = "Jun",
+            choices = dd_month
+          )
+        ),
+        
+       column(
+          3,
+          sliderInput(
+            "tjcc",
+            label = h3("Crop Coefficient"),
+            min = 0,
+            max = 1,
+            value = 0.5,
+            step = 0.1
+          )
+        ),
+       
+       column(
+         2,
+         selectInput(
+           inputId = "tjpaw",
+           label = h4("Starting PAW (mm):"),
+           selected = 15,
+           choices = dd_paw
+         )
+       ),
+        column(
+          3,
+          sliderInput(
+            "tjpawcut",
+            label = h3("Pick a PAW cutoff"),
+            min = -15,
+            max = 0,
+            value = -5,
+            step = 1
+            
+          )
+        )
+        
+      )
     )
   )
+  )
 )
+  
              
 
 
@@ -139,16 +152,16 @@ server <- function(input, output) {
   
   # This is for Tyler/Josh tab-------------------
   liq_tj1 <- reactive({
-    dat %>%
-      filter(month_id == input$tjmonth,
-             year_id == input$tjyear) %>% 
-      mutate(ET_daily_lag = lag(ET_daily),
-             ET_daily_lag = ifelse(is.na(ET_daily_lag), 0, ET_daily_lag),
-             paw = as.numeric(input$tjpaw),
-             cc = as.numeric(input$tjcc)) %>% 
-      mutate(cumET = cumsum(ET_daily_lag),
-             paw_today = paw - cc*cumET + precip_mm)
     
+    dat %>%
+      filter(month_lab == input$tjmonth,
+             year_id == input$tjyear) %>% 
+      mutate(cc = as.numeric(input$tjcc)) %>% 
+      mutate(ET_coef = ET_daily * cc,
+             net_mm = -ET_coef + precip_mm,
+             cum_mm = cumsum(net_mm),
+             paw = as.numeric(input$tjpaw) + cum_mm,
+             paw_color = ifelse(paw < as.numeric(input$tjpawcut), "bad", "good"))
     
   })
   
@@ -156,16 +169,18 @@ server <- function(input, output) {
   output$tjPlot1 <- renderPlot({
   
       ggplot(data = liq_tj1(),
-           aes(x = DOY,
-               y = ET_daily*cc)) +
-      geom_jitter(aes(x = DOY,
-                      y = ET_daily), 
-                  color = "black",
+           aes(x = date,
+               y = ET_coef)) +
+      geom_line(color = "red") + 
+      geom_line(aes(y = ET_daily),
+                color = "gray80") +
+      geom_point(aes(y = ET_daily), 
+                  color = "gray80",
                   size = 3) +
-      geom_jitter(aes(color = color_id), 
-                  color = "red", 
+      geom_point(color = "red", 
                   size = 3) +
       theme_bw() + 
+      scale_x_date(date_labels = "%b %d") +
       labs(x = NULL,
            y = "Daily Evapotranspiration (mm)")
   })
@@ -173,13 +188,19 @@ server <- function(input, output) {
   
    output$tjPlot2 <- renderPlot({
     
-    ggplot(data = liq_tj1(),
-           aes(x = DOY,
-               y = paw_today)) +
-       geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
-      geom_point(color = "gray", size = 3) +
-       geom_line(color = "gray", size = 2) +
-      theme_bw() + 
+     
+     ggplot(data = liq_tj1(),
+            aes(date, paw)) + 
+       geom_hline(yintercept = input$tjpawcut,
+                  linetype = "dashed",
+                  color = "black") + 
+       geom_line(color = "gray", size = 1) +
+       geom_point(aes(color = paw_color), size = 3) +
+       scale_x_date(date_labels = "%b %d") + 
+       theme_bw() + 
+       guides(color = F) + 
+       scale_color_manual(values = c("bad" = "red", 
+                                     "good" = "black")) +
        labs(x = NULL,
             y = "Plant Available Water (mm)")
      
