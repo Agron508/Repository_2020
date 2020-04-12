@@ -12,6 +12,7 @@ library(tidyverse)
 library(janitor)
 library(scales)
 library(lubridate)
+library(shinythemes)
 
 #--read in the data for trouble-shooting
 
@@ -69,6 +70,7 @@ dd_month <- dat %>% select(month_lab) %>% pull() %>% unique()
 dd_paw <- seq(1, 15, 1)
 
 ui <- fluidPage(
+  theme = shinytheme("cosmo"),
   # Application title
   navbarPage("Fun Class Projects"),
   
@@ -84,7 +86,8 @@ ui <- fluidPage(
       hr(),
       
       fluidRow(
-        column(
+          
+          column(
           2,
           selectInput(
             inputId = "tjyear",
@@ -107,14 +110,14 @@ ui <- fluidPage(
           3,
           sliderInput(
             "tjcc",
-            label = h3("Crop Coefficient"),
+            label = h3("Crop Coefficient (Kc)"),
             min = 0,
-            max = 1,
+            max = 1.2,
             value = 0.5,
             step = 0.1
           )
         ),
-       
+        
        column(
          2,
          selectInput(
@@ -128,7 +131,7 @@ ui <- fluidPage(
           3,
           sliderInput(
             "tjpawcut",
-            label = h3("Pick a PAW cutoff"),
+            label = h3("Plant Wilting Point (mm?)"),
             min = -15,
             max = 0,
             value = -5,
@@ -137,7 +140,22 @@ ui <- fluidPage(
           )
         )
         
+      ),
+      fluidRow(
+        column(
+          3,
+          offset = 4,
+          h3("Crop Coefficient Help"),
+          tags$img(src = "kc-image.png", height = 200, width = 300, align = "center")
+        ),
+        column(
+          3,
+          offset = 2,
+          h3("Plant Wilting Point Help"),
+          tags$img(src = "pwp-image.gif", height = 200, width = 300, align = "center")
+        )
       )
+      
     )
   )
   )
@@ -171,14 +189,9 @@ server <- function(input, output) {
       ggplot(data = liq_tj1(),
            aes(x = date,
                y = ET_coef)) +
-      geom_line(color = "red") + 
+      geom_line(color = "purple", size = 2) + 
       geom_line(aes(y = ET_daily),
                 color = "gray80") +
-      geom_point(aes(y = ET_daily), 
-                  color = "gray80",
-                  size = 3) +
-      geom_point(color = "red", 
-                  size = 3) +
       theme_bw() + 
       scale_x_date(date_labels = "%b %d") +
       labs(x = NULL,
@@ -194,8 +207,8 @@ server <- function(input, output) {
        geom_hline(yintercept = input$tjpawcut,
                   linetype = "dashed",
                   color = "black") + 
-       geom_line(color = "gray", size = 1) +
-       geom_point(aes(color = paw_color), size = 3) +
+       geom_line(color = "gray", size = 1, linetype = "dashed") +
+       geom_point(aes(color = paw_color), size = 5) +
        scale_x_date(date_labels = "%b %d") + 
        theme_bw() + 
        guides(color = F) + 
