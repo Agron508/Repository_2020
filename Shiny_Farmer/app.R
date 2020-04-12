@@ -75,7 +75,7 @@ ui <- fluidPage(
   navbarPage("Fun Class Projects"),
   
   tabsetPanel(tabPanel(
-    "Tyler and Josh",
+    "Evapotranspiration and Crop Growth",
     
     fluidRow(
       column(6,
@@ -194,6 +194,8 @@ server <- function(input, output) {
                 color = "gray80") +
       theme_bw() + 
       scale_x_date(date_labels = "%b %d") +
+      theme(axis.title = element_text(size = rel(1.5)),
+            axis.text = element_text(size = rel(1.2))) +
       labs(x = NULL,
            y = "Daily Evapotranspiration (mm)")
   })
@@ -214,6 +216,8 @@ server <- function(input, output) {
        guides(color = F) + 
        scale_color_manual(values = c("bad" = "red", 
                                      "good" = "black")) +
+       theme(axis.title = element_text(size = rel(1.5)),
+             axis.text = element_text(size = rel(1.2))) +
        labs(x = NULL,
             y = "Plant Available Water (mm)")
      
