@@ -90,7 +90,7 @@ dd_smois <- seq(0, 100, 5)
 ui <- fluidPage(
   theme = shinytheme("cosmo"),
   # Application title
-  navbarPage("Agron518 Class Projects"),
+  navbarPage("Agron508 Class Projects"),
   
   tabsetPanel(tabPanel(
     "Evapotranspiration Effects on Soil Water",
@@ -255,7 +255,7 @@ server <- function(input, output) {
        theme(axis.title = element_text(size = rel(1.5)),
              axis.text = element_text(size = rel(1.2))) +
        labs(x = NULL,
-            y = "Plant Available Water (mm)")
+            y = "Plant Available Water (%)")
      
      
   })
