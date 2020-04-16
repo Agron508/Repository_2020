@@ -15,28 +15,23 @@ library(lubridate)
 library(shinythemes)
 
 #--read in the data for trouble-shooting
-# 
-# et <-
-#   read_csv("data/tidy/data_et-sabr-miscan.csv") %>%
-#   mutate(date = mdy(Month),
-#          month_id = month(date),
-#          doy = DOY) %>%
-#   select(year_id, month_id, doy, ET_daily)
-# 
-# wx <- read_csv("data/tidy/data_ames-wea-2019.csv") %>%
-#   mutate(year_id = year(date))
 
+# et <-
+#   read_csv("data/tidy/data_ames-pet.csv") %>%
+#   mutate(month_id = month(date),
+#          doy = yday(date))
+# 
+# wx <- read_csv("data/tidy/data_ames-wea.csv") %>%
+#   mutate(doy = yday(date))
 
 
 et <-
-  read_csv("../data/tidy/data_et-sabr-miscan.csv") %>%
-  mutate(date = mdy(Month),
-         month_id = month(date),
-         doy = DOY) %>%
-  select(year_id, month_id, doy, ET_daily)
+  read_csv("../data/tidy/data_ames-pet.csv") %>%
+  mutate(month_id = month(date),
+         doy = yday(date))
 
-wx <- read_csv("../data/tidy/data_ames-wea-2019.csv") %>%
-  mutate(year_id = year(date))
+wx <- read_csv("../data/tidy/data_ames-wea.csv") %>%
+  mutate(doy = yday(date))
 
 
 
@@ -45,25 +40,28 @@ dat <-
   left_join(wx) %>%  
   mutate(month_lab = month(month_id, label = T))
 
+
 # for trouble shooting ----------------------------------------------------
 # 
 #      
-# dat.fake <- 
+# dat.fake <-
 #   dat %>%
 #   filter(month_lab == "Jun",
-#          year_id == 2019) %>% 
-#   mutate(cc = as.numeric(0.5)) %>% 
-#   mutate(PET = ET_daily,
-#          ET = PET * cc,
-#          net_mm = -ET + precip_mm,
-#          cum_mm = cumsum(net_mm),
-#          smois_pct = as.numeric(50) + cum_mm,
-#          smois_pct = ifelse(smois_pct < 0, 0, 
-#                             ifelse(smois_pct > 100, 100, smois_pct)))
+#          year == 2019) %>%
+#   mutate(cc = as.numeric(0.5)) %>%
+#   mutate(
+#     et_mm = pet_mm * cc,
+#     net_mm = -et_mm + precip_mm,
+#     cum_mm = cumsum(net_mm),
+#     smois_pct = as.numeric(50) + (cum_mm)*0.1,
+#     smois_pct = ifelse(smois_pct < 0, 0, 
+#                        ifelse(smois_pct > 100, 100, smois_pct)),
+#     smois_color = ifelse(smois_pct < as.numeric(20), "bad", "good"))
+
 # 
 # dat %>%
 #   filter(month_lab == input$tjmonth,
-#          year_id == input$tjyear) %>% 
+#          year == input$tjyear) %>% 
 #   mutate(cc = as.numeric(input$tjcc)) %>% 
 #   mutate(
 #     PET = ET_daily,
@@ -82,7 +80,7 @@ dat <-
 #   scale_x_date(date_labels = "%b %d")
 
 #--create the drop down menu values
-dd_year <- dat %>% select(year_id) %>% pull() %>% unique()
+dd_year <- dat %>% select(year) %>% pull() %>% unique()
 dd_month <- dat %>% select(month_lab) %>% pull() %>% unique()
 dd_smois <- seq(0, 100, 5)
 
@@ -197,14 +195,13 @@ server <- function(input, output) {
     
     dat %>%
       filter(month_lab == input$tjmonth,
-             year_id == input$tjyear) %>% 
+             year == input$tjyear) %>% 
       mutate(cc = as.numeric(input$tjcc)) %>% 
       mutate(
-        PET = ET_daily,
-        ET = PET * cc,
-        net_mm = -ET + precip_mm,
+        et_mm = pet_mm * cc,
+        net_mm = -et_mm + precip_mm,
         cum_mm = cumsum(net_mm),
-        smois_pct = as.numeric(input$tjsmois) + cum_mm,
+        smois_pct = as.numeric(input$tjsmois) + (cum_mm)/10,
         smois_pct = ifelse(smois_pct < 0, 0, 
                            ifelse(smois_pct > 100, 100, smois_pct)),
         smois_color = ifelse(smois_pct < as.numeric(input$tjpwp), "bad", "good"))
@@ -215,16 +212,20 @@ server <- function(input, output) {
   output$tjPlot1 <- renderPlot({
   
     liq_tj1() %>% 
-      select(year_id, month_id, doy, date, month_lab, PET, ET) %>% 
-      pivot_longer(PET:ET) %>% 
-      mutate(name = factor(name, levels = c("PET", "ET"))) %>% 
+      select(year, month_id, doy, date, month_lab, pet_mm, et_mm) %>% 
+      pivot_longer(pet_mm:et_mm) %>% 
+      mutate(evapotranspiration = recode(name,
+                           "pet_mm" = "Potential",
+                           "et_mm" = "Actual"),
+               evapotranspiration = factor(evapotranspiration,
+                                           levels = c("Potential", "Actual"))) %>% 
       ggplot(aes(x = date,
                y = value, 
-               color = name)) + 
+               color = evapotranspiration)) + 
       geom_point(size = 5) +
       geom_line() +
-      scale_color_manual(values = c("PET" = "gray80",
-                                    "ET" = "purple")) +
+      scale_color_manual(values = c("Potential" = "gray80",
+                                    "Actual" = "purple")) +
       theme_bw() + 
       scale_x_date(date_labels = "%b %d") +
       theme(axis.title = element_text(size = rel(1.5)),
@@ -233,7 +234,7 @@ server <- function(input, output) {
             legend.direction = "horizontal") +
       labs(x = NULL,
            color = NULL,
-           y = "Daily (Potential) Evapotranspiration (mm)")
+           y = "Daily Evapotranspiration (mm)")
   })
 
   
