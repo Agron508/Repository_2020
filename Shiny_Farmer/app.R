@@ -26,11 +26,11 @@ library(shinythemes)
 
 
 et <-
-  read_csv("../data/tidy/data_ames-pet.csv") %>%
+  read_csv("data_ames-pet.csv") %>%
   mutate(month_id = month(date),
          doy = yday(date))
 
-wx <- read_csv("../data/tidy/data_ames-wea.csv") %>%
+wx <- read_csv("data_ames-wea.csv") %>%
   mutate(doy = yday(date))
 
 
