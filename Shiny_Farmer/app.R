@@ -15,7 +15,7 @@ library(lubridate)
 library(shinythemes)
 
 #--read in the data for trouble-shooting
-
+# 
 # et <-
 #   read_csv("data/tidy/data_ames-pet.csv") %>%
 #   mutate(month_id = month(date),
@@ -44,19 +44,24 @@ dat <-
 # for trouble shooting ----------------------------------------------------
 # 
 #      
-# dat.fake <-
-#   dat %>%
-#   filter(month_lab == "Jun",
-#          year == 2019) %>%
-#   mutate(cc = as.numeric(0.5)) %>%
-#   mutate(
-#     et_mm = pet_mm * cc,
-#     net_mm = -et_mm + precip_mm,
-#     cum_mm = cumsum(net_mm),
-#     smois_pct = as.numeric(50) + (cum_mm)*0.1,
-#     smois_pct = ifelse(smois_pct < 0, 0, 
-#                        ifelse(smois_pct > 100, 100, smois_pct)),
-#     smois_color = ifelse(smois_pct < as.numeric(20), "bad", "good"))
+#dat.fake <-
+  # dat %>%
+  # filter(month_lab == "Jul",
+  #        year == 2015) %>%
+  # mutate(cc = as.numeric(0.9)) %>%
+  # mutate(
+  #   et_mm = pet_mm * cc,
+  #   net_mm = -et_mm + precip_mm,
+  #   cum_mm = cumsum(net_mm),
+  #   smois_pct_init = as.numeric(50),
+  #   #--part to copy-paste
+  #   smois_mm_init = smois_pct_init/100 * 200, #--do a 200 mm depth (aka 20 cm)
+  #   smois_mm = smois_mm_init  + cum_mm,
+  #   smois_pct = smois_mm / 200,
+  #   smois_pct = ifelse(smois_pct < 0, 0,
+  #                      ifelse(smois_pct > 100, 100, smois_pct))) %>%
+  # select(doy, pet_mm, precip_mm, cc, et_mm, net_mm, cum_mm:smois_pct)
+  # #mutate(smois_color = ifelse(smois_pct < as.numeric(input$tjpwp), "bad", "good"))
 
 # 
 # dat %>%
@@ -91,7 +96,7 @@ ui <- fluidPage(
   navbarPage("Agron508 Class Projects"),
   
   tabsetPanel(tabPanel(
-    "Evapotranspiration Effects on Soil Water",
+    "Soil Water In Ames, Iowa",
     
     fluidRow(
       column(6,
@@ -139,7 +144,7 @@ ui <- fluidPage(
          selectInput(
            "tjsmois",
            label = h3("Starting Soil Water (vol%):"),
-           selected = 50,
+           selected = 35,
            choices = dd_smois)
          ),
         column(
@@ -196,12 +201,16 @@ server <- function(input, output) {
     dat %>%
       filter(month_lab == input$tjmonth,
              year == input$tjyear) %>% 
-      mutate(cc = as.numeric(input$tjcc)) %>% 
+      mutate(cc = as.numeric(input$tjcc),
+             smois_pct_init = as.numeric(input$tjsmois)) %>% 
       mutate(
         et_mm = pet_mm * cc,
         net_mm = -et_mm + precip_mm,
         cum_mm = cumsum(net_mm),
-        smois_pct = as.numeric(input$tjsmois) + (cum_mm)/10,
+    
+        smois_mm_init = smois_pct_init/100 * 200, #--do a 200 mm depth (aka 20 cm)
+        smois_mm = smois_mm_init  + cum_mm,
+        smois_pct = smois_mm / 200 * 100,
         smois_pct = ifelse(smois_pct < 0, 0, 
                            ifelse(smois_pct > 100, 100, smois_pct)),
         smois_color = ifelse(smois_pct < as.numeric(input$tjpwp), "bad", "good"))
@@ -231,7 +240,8 @@ server <- function(input, output) {
       theme(axis.title = element_text(size = rel(1.5)),
             axis.text = element_text(size = rel(1.2)),
             legend.position = "top",
-            legend.direction = "horizontal") +
+            legend.direction = "horizontal",
+            legend.text = element_text(size = rel(2))) +
       labs(x = NULL,
            color = NULL,
            y = "Daily Evapotranspiration (mm)")
@@ -254,9 +264,11 @@ server <- function(input, output) {
        scale_color_manual(values = c("bad" = "red", 
                                      "good" = "blue")) +
        theme(axis.title = element_text(size = rel(1.5)),
-             axis.text = element_text(size = rel(1.2))) +
+             axis.text = element_text(size = rel(1.2)),
+             plot.title = element_text(size = rel(2))) +
        labs(x = NULL,
-            y = "Plant Available Water (%)")
+            y = "Soil Water Content (vol%)",
+            title = "0-20 cm Soil Profile")
      
      
   })
