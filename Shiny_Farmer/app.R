@@ -265,7 +265,7 @@ server <- function(input, output) {
        guides(color = F) + 
        scale_fill_gradient2(low = "red", high = "dodgerblue", 
                             na.value = NA, 
-                            midpoint = 50 - input$tjpwp) +
+                            midpoint = (50 + input$tjpwp)/2) +
        guides(fill = F) +
        theme(axis.title = element_text(size = rel(1.5)),
              axis.text = element_text(size = rel(1.2)),

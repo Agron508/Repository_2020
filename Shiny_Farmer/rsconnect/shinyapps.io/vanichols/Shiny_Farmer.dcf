@@ -5,8 +5,8 @@ account: vanichols
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 2152967
-bundleId: 3040745
+bundleId: 3044547
 url: https://vanichols.shinyapps.io/Shiny_Farmer/
-when: 1587414239.32807
+when: 1587479906.58696
 asMultiple: FALSE
 asStatic: FALSE
