@@ -15,7 +15,7 @@ library(lubridate)
 library(shinythemes)
 
 #--read in the data for trouble-shooting
-# 
+# # 
 # et <-
 #   read_csv("data/tidy/data_ames-pet.csv") %>%
 #   mutate(month_id = month(date),
@@ -44,24 +44,23 @@ dat <-
 # for trouble shooting ----------------------------------------------------
 # 
 #      
-#dat.fake <-
-  # dat %>%
-  # filter(month_lab == "Jul",
-  #        year == 2015) %>%
-  # mutate(cc = as.numeric(0.9)) %>%
-  # mutate(
-  #   et_mm = pet_mm * cc,
-  #   net_mm = -et_mm + precip_mm,
-  #   cum_mm = cumsum(net_mm),
-  #   smois_pct_init = as.numeric(50),
-  #   #--part to copy-paste
-  #   smois_mm_init = smois_pct_init/100 * 200, #--do a 200 mm depth (aka 20 cm)
-  #   smois_mm = smois_mm_init  + cum_mm,
-  #   smois_pct = smois_mm / 200,
-  #   smois_pct = ifelse(smois_pct < 0, 0,
-  #                      ifelse(smois_pct > 100, 100, smois_pct))) %>%
-  # select(doy, pet_mm, precip_mm, cc, et_mm, net_mm, cum_mm:smois_pct)
-  # #mutate(smois_color = ifelse(smois_pct < as.numeric(input$tjpwp), "bad", "good"))
+# dat.fake <-
+# dat %>%
+#   filter(month_lab == "Jul",
+#          year == 2015) %>% 
+#   mutate(cc = 0.8,
+#          smois_pct_init = as.numeric(50)) %>% 
+#   mutate(
+#     et_mm = pet_mm * cc,
+#     net_mm = -et_mm + precip_mm,
+#     cum_mm = cumsum(net_mm),
+#     
+#     smois_mm_init = smois_pct_init/100 * 200, #--do a 200 mm depth (aka 20 cm)
+#     smois_mm = smois_mm_init  + cum_mm,
+#     smois_pct = smois_mm / 200 * 100,
+#     smois_pct = ifelse(smois_pct < 0, 0, 
+#                        ifelse(smois_pct > 50, 50, smois_pct)),
+#     smois_color = ifelse(smois_pct < as.numeric(15), "bad", "good"))
 
 # 
 # dat %>%
@@ -212,8 +211,7 @@ server <- function(input, output) {
         smois_mm = smois_mm_init  + cum_mm,
         smois_pct = smois_mm / 200 * 100,
         smois_pct = ifelse(smois_pct < 0, 0, 
-                           ifelse(smois_pct > 100, 100, smois_pct)),
-        smois_color = ifelse(smois_pct < as.numeric(input$tjpwp), "bad", "good"))
+                           ifelse(smois_pct > 50, 50, smois_pct)))
     
   })
   
@@ -230,10 +228,13 @@ server <- function(input, output) {
                                            levels = c("Potential", "Actual"))) %>% 
       ggplot(aes(x = date,
                y = value, 
-               color = evapotranspiration)) + 
-      geom_point(size = 5) +
+               color = evapotranspiration,
+               fill = evapotranspiration)) + 
       geom_line() +
-      scale_color_manual(values = c("Potential" = "gray80",
+      geom_point(pch = 21, stroke = 2, size = 5, alpha = 0.7) +
+      scale_color_manual(values = c("Potential" = "gray90",
+                                    "Actual" = "black")) +
+      scale_fill_manual(values = c("Potential" = "gray80",
                                     "Actual" = "purple")) +
       theme_bw() + 
       scale_x_date(date_labels = "%b %d") +
@@ -244,6 +245,7 @@ server <- function(input, output) {
             legend.text = element_text(size = rel(2))) +
       labs(x = NULL,
            color = NULL,
+           fill = NULL,
            y = "Daily Evapotranspiration (mm)")
   })
 
@@ -257,12 +259,14 @@ server <- function(input, output) {
                   linetype = "dashed",
                   color = "black") + 
        geom_line(color = "gray", size = 1, linetype = "dashed") +
-       geom_point(aes(color = smois_color), size = 5) +
+       geom_point(pch = 21, aes(fill = smois_pct), size = 5, stroke = 2) +
        scale_x_date(date_labels = "%b %d") + 
        theme_bw() + 
        guides(color = F) + 
-       scale_color_manual(values = c("bad" = "red", 
-                                     "good" = "blue")) +
+       scale_fill_gradient2(low = "red", high = "dodgerblue", 
+                            na.value = NA, 
+                            midpoint = 50 - input$tjpwp) +
+       guides(fill = F) +
        theme(axis.title = element_text(size = rel(1.5)),
              axis.text = element_text(size = rel(1.2)),
              plot.title = element_text(size = rel(2))) +
