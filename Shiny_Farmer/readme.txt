@@ -1,8 +1,0 @@
-Created by Gina Nichols, Josh Bendorf, And Tyler White -- Iowa State University, Department of Agronomy, 2020
-
-Description: The team has designed a tool to help display a visual representation of potential/actual evapotranspiration (ET) of a crop depending on the soil water content within the top 20 cm of one’s soils. By selecting a month and year in the drop down boxes in the lower left hand corner, one can see the changes in the potential daily ET (PET) as well as the actual ET taking place. Approximating the actual ET rate can be determined by adjusting the crop coefficient (Kc) slider bar in the middle (Actual ET = Kc*PET).The figure below the Kc slider bar displays estimates of a Kc depending on the growth stage of the crop. The plant wilting point slider bar can be adjusted depending on the soil type the particular crop is grown on. The figure below the slider can be used as a reference to determine the wilting point depending on the texture of the soil in question.
-This tool allows growers to determine times of potential stress to the crop based on weather conditions. Currently, it is simply a visaulization tool that demonstrates how rapidly crops can become water stressed through the use of 2012-2019 weather data from the ISU Agronomy & Agricultural Engineering Farm in Ames, IA. Ideally, this tool would have proactive value to growers who uses irrigation to determine the best timing to irrigate a crop depending on the rate of ET, soil water content, and soil type during the season.
-
-FC and PWP figure: Nature Education (https://www.nature.com/scitable/knowledge/library/soil-water-dynamics-103089121/)
-
-Weather Data Source: Iowa Environmental Mesonet (https://mesonet.agron.iastate.edu/agclimate/hist/dailyRequest.php)

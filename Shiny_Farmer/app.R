@@ -162,8 +162,12 @@ ui <- fluidPage(
       ),
       fluidRow(
         column(
+          4,
+          includeMarkdown("readme.md")
+          ),
+        column(
           3,
-          offset = 4,
+          #offset = 4,
           h3("Crop Coefficient Help"),
           tags$img(src = "kc-image.png", height = 200, width = 300, align = "center")
         ),
