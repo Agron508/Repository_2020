@@ -36,9 +36,28 @@ library(shinythemes)
 #   select(month_lab, wl_bins, hour2, mol_pho, energy) %>%
 #   pivot_longer(mol_pho:energy) %>%
 #   group_by(month_lab, hour2, wl_bins, name) %>%
-#   summarise(val_sum = sum(value, na.rm = TRUE)) %>% 
-#   ungroup() %>% 
-#   mutate(hour2 = paste0(hour2, "-", hour2+2))
+#   summarise(val_sum = sum(value, na.rm = TRUE)) %>%
+#   ungroup() %>%
+#   mutate(hour2 = paste0(hour2, "-", hour2 + 2),
+#          hour2 = factor(hour2, 
+#                         levels = c("6-8", "8-10", "10-12", "12-14", "14-16", "16-18", "18-20", "20-22"))) %>%
+# mutate(mycolor = ifelse(
+#   wl_bins < 380, "thistle",
+#   ifelse(wl_bins < 440, "purple4",
+#          ifelse(wl_bins < 490, "blue",
+#                 ifelse(wl_bins < 500, "lightblue",
+#                        ifelse(wl_bins < 570, "green4",
+#                               ifelse(wl_bins < 590, "yellow",
+#                                      ifelse(wl_bins < 630, "orange",
+#                                             ifelse(wl_bins < 740, "red", "darkred")
+#                                      )
+#                               )
+#                        )
+#                 )
+#          )
+#   )
+# )
+# )
 
 
 #--tab 1
@@ -71,12 +90,35 @@ dat2 <- read_csv("data_richard_wavelengths.csv") %>%
   group_by(month_lab, hour2, wl_bins, name) %>%
   summarise(val_sum = sum(value, na.rm = TRUE)) %>%
   ungroup() %>%
-  mutate(hour2 = paste0(hour2, "-", hour2 + 2))
+  mutate(hour2 = paste0(hour2, "-", hour2 + 2),
+         hour2 = factor(hour2, 
+                        levels = c("6-8", "8-10", "10-12", "12-14", "14-16", "16-18", "18-20", "20-22"))) %>% 
+  mutate(mycolor = ifelse(
+    wl_bins < 380, "thistle",
+    ifelse(wl_bins < 440, "purple4",
+           ifelse(wl_bins < 490, "blue",
+                  ifelse(wl_bins < 500, "lightblue",
+                         ifelse(wl_bins < 570, "green4",
+                                ifelse(wl_bins < 590, "yellow",
+                                       ifelse(wl_bins < 630, "orange",
+                                              ifelse(wl_bins < 740, "red", "darkred")
+                                       )
+                                )
+                         )
+                  )
+           )
+    )
+  )
+  )
+
+mycolor_vct <- 
+  dat2 %>% 
+  select(mycolor) %>% 
+  unique() %>% 
+  pull()
+
 
   
-
-
-
 # for trouble shooting ----------------------------------------------------
 # 
 #      
@@ -241,7 +283,7 @@ ui <- fluidPage(
     ),
     #--end tab
     tabPanel(
-      "Downwelling shortwave radiation near Ellsworth, IA",
+      "Downwelling Shortwave Radiation near Ellsworth, Iowa",
       
       fluidRow(#month select
         column(
@@ -249,7 +291,7 @@ ui <- fluidPage(
           selectInput(
             inputId = "rmonth",
             label = h4("Pick A Month:"),
-            selected = "Jul",
+            selected = "Aug",
             choices = dd_month2
           )
         ),
@@ -372,11 +414,24 @@ server <- function(input, output) {
    output$rPlot1 <- renderPlot({
      liq_r1() %>% 
        ggplot(aes(x = wl_bins,y = val_sum)) +
-       geom_col() +
+       geom_col(aes(fill = mycolor)) +
        facet_wrap(~hour2) + 
+       scale_fill_manual(values = c("thistle" = mycolor_vct[1],
+                                    "purple4" = mycolor_vct[2],
+                                    "blue" = mycolor_vct[3],
+                                    "lightblue" =  mycolor_vct[4],
+                                    "green4" =  mycolor_vct[5],
+                                    "yellow" =  mycolor_vct[6],
+                                    "orange" =  mycolor_vct[7],
+                                    "red" =  mycolor_vct[8],
+                                    "darkred" =  mycolor_vct[9])) +
+       guides(fill = F) +
        labs(x = "Wavelength (nm)",
             y = bquote('Photon Flux '(number/sm^2)),
-            title = "Photon Flux Or Energy Over Two Hour Period")
+            title = "Photon Flux Or Energy Over Two Hour Period") +
+       theme(axis.title = element_text(size = rel(1.5)),
+             axis.text = element_text(size = rel(1.2)))
+       
    })
    
   
