@@ -75,6 +75,10 @@ dat <-
   left_join(wx) %>%  
   mutate(month_lab = month(month_id, label = T))
 
+plankcons <- 6.63E-34 #J/s
+spdlgt <- 3E8 #m/s
+
+
 #--tab 2
 dat2 <- read_csv("data_richard_wavelengths.csv") %>%
   filter(mol_pho < 0.002) %>%
@@ -82,7 +86,7 @@ dat2 <- read_csv("data_richard_wavelengths.csv") %>%
   mutate(
     wl_bins = (wavelength %/% 10) * 10,
     hour2 = trunc(hour / 2) * 2,
-    energy = mol_pho * 6.022E23 * (6.63E-19 * 3E8) / wavelength / 1E-9,
+    energy = mol_pho * (plankcons * spdlgt) / (wavelength / 1E-9),
     month_lab = month(month, label = T)
   ) %>%
   select(month_lab, wl_bins, hour2, mol_pho, energy) %>%
@@ -92,7 +96,14 @@ dat2 <- read_csv("data_richard_wavelengths.csv") %>%
   ungroup() %>%
   mutate(hour2 = paste0(hour2, "-", hour2 + 2),
          hour2 = factor(hour2, 
-                        levels = c("6-8", "8-10", "10-12", "12-14", "14-16", "16-18", "18-20", "20-22"))) %>% 
+                        levels = c("6-8", "8-10", 
+                                   "10-12", "12-14",
+                                   "14-16", "16-18",
+                                   "18-20", "20-22"))) %>% 
+  mutate(name = recode(name,
+                       "mol_pho" = "Moles of Photons",
+                       "energy" = "Energy")
+  ) %>% 
   mutate(mycolor = ifelse(
     wl_bins < 380, "thistle",
     ifelse(wl_bins < 440, "purple4",
@@ -166,7 +177,9 @@ dd_year <- dat %>% select(year) %>% pull() %>% unique()
 dd_month <- dat %>% select(month_lab) %>% pull() %>% unique()
 dd_smois <- seq(0, 100, 5)
 dd_month2 <- dat2 %>% select(month_lab) %>% pull() %>% unique()
-dd_var <- c("mol_pho", "energy")
+dd_var <- c("Moles of Photons", "Energy")
+
+labphotons <- bquote("Photons (moles " ~ m^-2 ~  sec^-1 ~ ")")
 
 ui <- fluidPage(
   theme = shinytheme("cosmo"),
@@ -307,7 +320,10 @@ ui <- fluidPage(
         )),
       fluidRow(#the plot
         column(12,
-               plotOutput("rPlot1")))
+               plotOutput("rPlot1"))),
+      fluidRow(
+        column(12,
+               includeMarkdown("readme2.md")))
       
     ) #--end tab
   )
@@ -414,7 +430,7 @@ server <- function(input, output) {
    output$rPlot1 <- renderPlot({
      liq_r1() %>% 
        ggplot(aes(x = wl_bins,y = val_sum)) +
-       geom_col(aes(fill = mycolor)) +
+       geom_col(aes(fill = mycolor), width = 10) +
        facet_wrap(~hour2) + 
        scale_fill_manual(values = c("thistle" = mycolor_vct[1],
                                     "purple4" = mycolor_vct[2],
@@ -427,10 +443,11 @@ server <- function(input, output) {
                                     "darkred" =  mycolor_vct[9])) +
        guides(fill = F) +
        labs(x = "Wavelength (nm)",
-            y = bquote('Photon Flux '(number/sm^2)),
+            y = labphotons,
             title = "Photon Flux Or Energy Over Two Hour Period") +
        theme(axis.title = element_text(size = rel(1.5)),
-             axis.text = element_text(size = rel(1.2)))
+             axis.text = element_text(size = rel(1.2)),
+             strip.text = element_text(size = rel(1.5)))
        
    })
    

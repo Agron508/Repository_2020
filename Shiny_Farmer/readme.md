@@ -1,12 +1,10 @@
 **Shiny created by [Gina Nichols](https://vanichols.netlify.app/)**
-<br>
 **Concept developed by Josh Bendorf, Tyler White, and [Gina Nichols](https://vanichols.netlify.app/)**
-<br>
 Agron508, Department of Agronomy, Iowa State University, 2020
-<br>
+
 **Description**:
 This tool displays a visual representation of **P**otential **E**vapo**t**ranspiration (**PET**) and actual **ET** (which depends on the crop stage), and the consequences on soil water in the top 20 cm of the profile.
-<br>
+
 * The **PET** for a given *month* and *year (2012-2019)* at the Agronomy Research Farm near Ames Iowa comes from the [Iowa Environmental Mesonet](https://mesonet.agron.iastate.edu/agclimate/hist/dailyRequest.php). 
 * The [Crop Coefficient Help](https://cropwatch.unl.edu/estimating-crop-evapotranspiration) provides guidance on picking a value based on the crop's growth stage. 
 The ET depends on the *Crop Coefficient Kc* via:
