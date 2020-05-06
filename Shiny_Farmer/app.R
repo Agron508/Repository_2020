@@ -23,8 +23,25 @@ library(shinythemes)
 # 
 # wx <- read_csv("data/tidy/data_ames-wea.csv") %>%
 #   mutate(doy = yday(date))
+# 
+# dat2 <- read_csv("data/tidy/condensed.csv") %>%
+#   filter(mol_pho < 0.002) %>%
+#   filter(hour >= 6, hour <= 20) %>%
+#   mutate(
+#     wl_bins = (wavelength %/% 10) * 10,
+#     hour2 = trunc(hour / 2) * 2,
+#     energy = mol_pho * 6.022E23 * (6.63E-19 * 3E8) / wavelength / 1E-9,
+#     month_lab = month(month, label = T)
+#   ) %>%
+#   select(month_lab, wl_bins, hour2, mol_pho, energy) %>%
+#   pivot_longer(mol_pho:energy) %>%
+#   group_by(month_lab, hour2, wl_bins, name) %>%
+#   summarise(val_sum = sum(value, na.rm = TRUE)) %>% 
+#   ungroup() %>% 
+#   mutate(hour2 = paste0(hour2, "-", hour2+2))
 
 
+#--tab 1
 et <-
   read_csv("data_ames-pet.csv") %>%
   mutate(month_id = month(date),
@@ -34,11 +51,30 @@ wx <- read_csv("data_ames-wea.csv") %>%
   mutate(doy = yday(date))
 
 
-
 dat <-
   et %>% 
   left_join(wx) %>%  
   mutate(month_lab = month(month_id, label = T))
+
+#--tab 2
+dat2 <- read_csv("data_richard_wavelengths.csv") %>%
+  filter(mol_pho < 0.002) %>%
+  filter(hour >= 6, hour <= 20) %>%
+  mutate(
+    wl_bins = (wavelength %/% 10) * 10,
+    hour2 = trunc(hour / 2) * 2,
+    energy = mol_pho * 6.022E23 * (6.63E-19 * 3E8) / wavelength / 1E-9,
+    month_lab = month(month, label = T)
+  ) %>%
+  select(month_lab, wl_bins, hour2, mol_pho, energy) %>%
+  pivot_longer(mol_pho:energy) %>%
+  group_by(month_lab, hour2, wl_bins, name) %>%
+  summarise(val_sum = sum(value, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(hour2 = paste0(hour2, "-", hour2 + 2))
+
+  
+
 
 
 # for trouble shooting ----------------------------------------------------
@@ -87,112 +123,154 @@ dat <-
 dd_year <- dat %>% select(year) %>% pull() %>% unique()
 dd_month <- dat %>% select(month_lab) %>% pull() %>% unique()
 dd_smois <- seq(0, 100, 5)
-
+dd_month2 <- dat2 %>% select(month_lab) %>% pull() %>% unique()
+dd_var <- c("mol_pho", "energy")
 
 ui <- fluidPage(
   theme = shinytheme("cosmo"),
   # Application title
   navbarPage("Agron508 Class Projects"),
   
-  tabsetPanel(tabPanel(
-    "Soil Water In Ames, Iowa",
-    
-    fluidRow(
-      column(6,
-             plotOutput("tjPlot1")),
-      column(6,
-             plotOutput("tjPlot2")),
-      
-      hr(),
+  tabsetPanel(
+    tabPanel(
+      "Soil Water In Ames, Iowa",
       
       fluidRow(
+        column(6,
+               plotOutput("tjPlot1")),
+        column(6,
+               plotOutput("tjPlot2")),
+        
+        hr(),
+        
+        fluidRow(
+          column(
+            2,
+            selectInput(
+              inputId = "tjyear",
+              label = h4("Pick A Year:"),
+              selected = 2019,
+              choices = dd_year
+            )
+          ),
+          column(
+            2,
+            selectInput(
+              inputId = "tjmonth",
+              label = h4("Pick A Month:"),
+              selected = "Jun",
+              choices = dd_month
+            )
+          ),
           
           column(
-          2,
-          selectInput(
-            inputId = "tjyear",
-            label = h4("Pick A Year:"),
-            selected = 2019,
-            choices = dd_year
-          )
-        ),
-        column(
-          2,
-          selectInput(
-            inputId = "tjmonth",
-            label = h4("Pick A Month:"),
-            selected = "Jun",
-            choices = dd_month
-          )
-        ),
-        
-       column(
-          3,
-          sliderInput(
-            "tjcc",
-            label = h3("Crop Coefficient (Kc)"),
-            min = 0,
-            max = 1.2,
-            value = 0.5,
-            step = 0.1
-          )
-        ),
-        
-       column(
-         2,
-         selectInput(
-           "tjsmois",
-           label = h3("Starting Soil Water (vol%):"),
-           selected = 35,
-           choices = dd_smois)
-         ),
-        column(
-          3,
-          sliderInput(
-            "tjpwp",
-            label = h3("Plant Wilting Point (vol%)"),
-            min = 0,
-            max = 50,
-            value = 15,
-            step = 1
-            
-          )
-        )
-        
-      ),
-      fluidRow(
-        column(
-          4,
-          includeMarkdown("readme.md")
+            3,
+            sliderInput(
+              "tjcc",
+              label = h3("Crop Coefficient (Kc)"),
+              min = 0,
+              max = 1.2,
+              value = 0.5,
+              step = 0.1
+            )
           ),
-        column(
-          3,
-          #offset = 4,
-          h3("Crop Coefficient Help"),
-          tags$img(src = "kc-image.png", height = 200, width = 300, align = "center")
+          
+          column(
+            2,
+            selectInput(
+              "tjsmois",
+              label = h3("Starting Soil Water (vol%):"),
+              selected = 35,
+              choices = dd_smois
+            )
+          ),
+          column(
+            3,
+            sliderInput(
+              "tjpwp",
+              label = h3("Plant Wilting Point (vol%)"),
+              min = 0,
+              max = 50,
+              value = 15,
+              step = 1
+              
+            )
+          )
+          
         ),
-        column(
-          2,
-          #offset = 1,
-          h3("Soil Water Visual"),
-          tags$img(src = "pwp-image.gif", height = 200, width = 200, align = "center")
-        ),
-        column(
-          3,
-          #offset = 1,
-          h3("Plant Wilting Point Help"),
-          tags$img(src = "soil water.png", height = 200, width = 300, align = "center")
+        fluidRow(
+          column(4,
+                 includeMarkdown("readme.md")),
+          column(
+            3,
+            #offset = 4,
+            h3("Crop Coefficient Help"),
+            tags$img(
+              src = "kc-image.png",
+              height = 200,
+              width = 300,
+              align = "center"
+            )
+          ),
+          column(
+            2,
+            #offset = 1,
+            h3("Soil Water Visual"),
+            tags$img(
+              src = "pwp-image.gif",
+              height = 200,
+              width = 200,
+              align = "center"
+            )
+          ),
+          column(
+            3,
+            #offset = 1,
+            h3("Plant Wilting Point Help"),
+            tags$img(
+              src = "soil water.png",
+              height = 200,
+              width = 300,
+              align = "center"
+            )
+          )
+          
         )
         
       )
+    ),
+    #--end tab
+    tabPanel(
+      "Downwelling shortwave radiation near Ellsworth, IA",
       
-    )
+      fluidRow(#month select
+        column(
+          2,
+          selectInput(
+            inputId = "rmonth",
+            label = h4("Pick A Month:"),
+            selected = "Jul",
+            choices = dd_month2
+          )
+        ),
+        #variable select (couldn't get to work so does nothing)
+        column(
+          3,
+          selectInput(
+            inputId = "rvar",
+            label = h4("Pick A Variable:"),
+            selected = "mol_pho",
+            choices = dd_var
+          )
+        )),
+      fluidRow(#the plot
+        column(12,
+               plotOutput("rPlot1")))
+      
+    ) #--end tab
   )
-  )
-)
   
-             
-
+)
 
 
 # Define server logic required
@@ -280,6 +358,27 @@ server <- function(input, output) {
      
      
   })
+   
+   liq_r1 <- reactive({
+     
+     dat2 %>%
+       filter(month_lab == input$rmonth) %>% 
+       filter(name == input$rvar)
+     
+   })
+   
+   
+   #makes the plot
+   output$rPlot1 <- renderPlot({
+     liq_r1() %>% 
+       ggplot(aes(x = wl_bins,y = val_sum)) +
+       geom_col() +
+       facet_wrap(~hour2) + 
+       labs(x = "Wavelength (nm)",
+            y = bquote('Photon Flux '(number/sm^2)),
+            title = "Photon Flux Or Energy Over Two Hour Period")
+   })
+   
   
 
 
